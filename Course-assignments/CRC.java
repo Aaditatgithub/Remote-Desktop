@@ -1,7 +1,7 @@
 public class CRC {
 
     public static void main(String[] args) {
-        String data = "11010011101100";
+        String data = "110011100001";
         String generator = "1011";
         
         String encodedData = encodeData(data, generator);

@@ -11,7 +11,7 @@ public class LineEncoding {
         System.out.println("Differential Manchester: " + differentialManchester(data));
     }
 
-    public static String nrzl(String data) {
+    public static String nrzl(String data) {        // bit - 1 -> +ve voltage else negative
         StringBuilder result = new StringBuilder();
         for (char bit : data.toCharArray()) {
             result.append(bit == '1' ? "+ " : "- ");
@@ -19,7 +19,7 @@ public class LineEncoding {
         return result.toString();
     }
 
-    public static String nrzi(String data) {
+    public static String nrzi(String data) {    // if data element is 1 and polarity previously was 1 then change the polarity
         StringBuilder result = new StringBuilder();
         char prev = '-';
         for (char bit : data.toCharArray()) {
@@ -32,6 +32,7 @@ public class LineEncoding {
     }
 
     public static String unipolar(String data) {
+        // only +ve polarity exists, if 1 : + else -
         StringBuilder result = new StringBuilder();
         for (char bit : data.toCharArray()) {
             result.append(bit == '1' ? "+ " : "0 ");
@@ -40,6 +41,8 @@ public class LineEncoding {
     }
 
     public static String bipolar(String data) {
+
+        // inverse polarity on occurence of 1
         StringBuilder result = new StringBuilder();
         boolean positive = true;
         for (char bit : data.toCharArray()) {
@@ -54,6 +57,8 @@ public class LineEncoding {
     }
 
     public static String manchester(String data) {
+
+        // mapping ratio = 1/2 
         StringBuilder result = new StringBuilder();
         for (char bit : data.toCharArray()) {
             result.append(bit == '1' ? "+ - " : "- + ");
@@ -62,6 +67,7 @@ public class LineEncoding {
     }
 
     public static String differentialManchester(String data) {
+        
         StringBuilder result = new StringBuilder();
         char prev = '-';
         for (char bit : data.toCharArray()) {
