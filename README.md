@@ -124,3 +124,7 @@ Once the connection is established:
 ## What's happening here?
 
    Planning to optimize it via Executors Service and Compression mechanisms for low latency.
+
+## Acknowledgements
+
+Special thanks to [dydtjr1128](https://github.com/dydtjr1128) his repository, greatly helped in the development of this project.
