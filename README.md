@@ -125,6 +125,3 @@ Once the connection is established:
 
    Planning to optimize it via Executors Service and Compression mechanisms for low latency.
 
-## Acknowledgements
-
-Special thanks to [dydtjr1128](https://github.com/dydtjr1128). His repository greatly helped in the development of this project.
