@@ -1,6 +1,3 @@
-Here's a structured `README.md` template for your "Remote Desktop" project with sections for Introduction, Architecture, Screenshots, and Setup:
-
-
 # Remote Desktop
 
 ## Introduction
