@@ -127,4 +127,4 @@ Once the connection is established:
 
 ## Acknowledgements
 
-Special thanks to [dydtjr1128](https://github.com/dydtjr1128) his repository, greatly helped in the development of this project.
+Special thanks to [dydtjr1128](https://github.com/dydtjr1128). His repository greatly helped in the development of this project.
