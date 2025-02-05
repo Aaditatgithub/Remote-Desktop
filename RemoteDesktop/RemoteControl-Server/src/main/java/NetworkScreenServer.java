@@ -8,479 +8,402 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URL;
-import java.util.Vector;
+import java.util.concurrent.*;
 
-
+/**
+ * Modernized Server Code for Remote Screen Control
+ */
 public class NetworkScreenServer extends JFrame {
-	private final static int SERVER_PORT = 9999;
-	private final static int SERVER_CURSOR_PORT = SERVER_PORT - 1;
-	private final static int SERVER_KEBOARD_PORT = SERVER_PORT - 2;
-	private DataOutputStream dataOutputStream;
-	private ObjectOutputStream objectOutputStream;
-	private Image cursor;
-	private String myFont = "????";
-	private BufferedImage screenImage;
-	private Rectangle rect;
-	private MainPanel mainPanel = new MainPanel();
-	private ServerSocket imageSeverSocket = null;
-	private ServerSocket cursorServerSocket = null;
-	private ServerSocket keyboardServerSocket = null;
-	private Socket imageSocket = null;
-	private Socket cursorSocket = null;
-	private Socket keyboardSocket = null;
-	private Robot robot;
-	private int screenWidth, screenHeight;
-	private Boolean isRunning = false;
-	private Thread imgThread;
-	private static int new_Width = 1920;
-	private static int new_Height = 1080;
-	private JButton startBtn;
-	private JButton stopBtn;
-	private JTextField widthTextfield;
-	private JTextField heightTextfield;
+	// Ports for the three channels
+	private static final int SERVER_PORT = 8080;
+	private static final int SERVER_CURSOR_PORT = SERVER_PORT - 1;    // 8079
+	private static final int SERVER_KEYBOARD_PORT = SERVER_PORT - 2;  // 8078
+
+	// Constants for mouse and keyboard events
+	private static final int MOUSE_MOVE = 1;
+	private static final int MOUSE_PRESSED = 2;
+	private static final int MOUSE_RELEASED = 3;
+	private static final int MOUSE_DOWN_WHEEL = 4;
+	private static final int MOUSE_UP_WHEEL = 5;
+	private static final int KEY_PRESSED = 6;
+	private static final int KEY_RELEASED = 7;
+	private static final int KEY_CHANGE_LANGUAGE = 8;  // (optional)
+
+	// UI Components (Control Panel)
+	private JTextField widthTextField;
+	private JTextField heightTextField;
 	private JRadioButton compressTrueRBtn;
 	private JRadioButton compressFalseRBtn;
-	private JLabel widthLabel;
-	private JLabel heightLabel;
-	private JLabel compressLabel;
-	private URL cursorURL = getClass().getClassLoader().getResource("cursor.gif");
-	private Boolean isCompress = true;
-	private JFrame fff = this;
-	private final int MOUSE_MOVE = 1;
-	private final int MOUSE_PRESSD = 2;
-	private final int MOUSE_RELEASED = 3;
-	private final int MOUSE_DOWN_WHEEL = 4;
-	private final int MOUSE_UP_WHEEL = 5;
-	private final int KEY_PRESSED = 6;
-	private final int KEY_RELEASED = 7;
-	private final int KEY_CHANGE_LANGUAGE = 8;
-	int count = 0, count2 = 0;
-	private User32jna u32 = User32jna.INSTANCE;
-	private int buffersize = 1;
-	private BufferedImage[] img = new BufferedImage[buffersize];
-	private Vector<byte[]> imgvec = new Vector<>();
+	private JButton startBtn;
+	private JButton stopBtn;
+	private JLabel statusLabel;
+
+	// Configuration
+	private int newWidth = 1920;
+	private int newHeight = 1080;
+	private boolean isCompress = true;
+
+	// Executor for running background tasks
+	private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+	// Robot for capturing screen and simulating events
+	private Robot robot;
+	private Rectangle screenRect;
+
+	// Server sockets and client sockets
+	private ServerSocket imageServerSocket;
+	private ServerSocket cursorServerSocket;
+	private ServerSocket keyboardServerSocket;
+	private Socket imageSocket;
+	private Socket cursorSocket;
+	private Socket keyboardSocket;
+
+	// Running flag for tasks
+	private volatile boolean isRunning = false;
+
+	// Main control panel
+	private final ControlPanel controlPanel = new ControlPanel();
 
 	public NetworkScreenServer() {
-		setTitle("NetworkScreenServer");
+		super("Network Screen Server");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLayout(null);
-		setContentPane(mainPanel);
-		setSize(490, 160);
-		setVisible(true);
+		setSize(500, 180);
 		setResizable(false);
+		setLocationRelativeTo(null);
+		setContentPane(controlPanel);
 
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyTyped(KeyEvent e) {
-				System.out.println("type" + e.getKeyCode() + "  " + e.getKeyChar() + "  " + e.getID() + "  "
-						+ e.getModifiers() + "  " + e.getKeyLocation() + "  " + e.getExtendedKeyCode());
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println("pressed" + e.getKeyCode() + "  " + e.getKeyChar() + "  " + e.getID() + "  "
-						+ e.getModifiers() + "  " + e.getKeyLocation() + "  " + e.getExtendedKeyCode());
-				super.keyPressed(e);
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				System.out.println("released" + e.getKeyCode() + "  " + e.getKeyChar() + "  " + e.getID() + "  "
-						+ e.getModifiers() + "  " + e.getKeyLocation() + "  " + e.getExtendedKeyCode());
-				if (e.getKeyCode() == 0) {
-					if (count >= 1) {
-						count = 0;
-						return;
-					}
-					// System.out.println(t.getLocale().toString() + " " +
-					// t.getLocale().getCountry() + " " +
-					// t.getLocale().getDisplayCountry());
-					System.out.println("ee");
-					count = 1;
-					u32.keybd_event((byte) 0x15, (byte) 0, 0, 0);// ????ffDDDddSS
-					u32.keybd_event((byte) 0x15, (byte) 00, (byte) 0x0002, 0);// ????
-																				// ????
-				}
-			}
-		});
-		widthTextfield.requestFocus();
+		// Initialize Robot and screen dimensions
+		try {
+			robot = new Robot();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			screenRect = new Rectangle(screenSize);
+		} catch (AWTException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Unable to initialize screen capture.",
+					"Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
+		}
+		setVisible(true);
 	}
 
-	public interface User32jna extends Library {
-		User32jna INSTANCE = (User32jna) Native.load("user32.dll", User32jna.class);
-
-		// User32jna INSTANCE = (User32jna)
-		// Native.loadLibrary("user32.dll",User32jna.class);
-		public void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-	}
-
-	/*
-	 * User32jna u32 = User32jna.INSTANCE;
+	/**
+	 * ControlPanel is the UI where you can specify parameters and start/stop the server.
 	 */
-
-	class MainPanel extends JPanel implements Runnable {
-
-		public MainPanel() {
+	private class ControlPanel extends JPanel {
+		public ControlPanel() {
 			setLayout(null);
-
 			startBtn = new JButton("Start");
 			stopBtn = new JButton("Stop");
-			widthTextfield = new JTextField(Integer.toString(new_Width), 5);
-			heightTextfield = new JTextField(Integer.toString(new_Height), 5);
-			widthLabel = new JLabel("width");
-			heightLabel = new JLabel("height");
-			compressLabel = new JLabel("<html>&nbsp&nbsp&nbsp<span>Image<br>Compress</span></html>");
-			compressTrueRBtn = new JRadioButton("True");
-			compressFalseRBtn = new JRadioButton("False");
+			stopBtn.setEnabled(false);
+			widthTextField = new JTextField("1920", 5);
+			heightTextField = new JTextField("1080", 5);
+			compressTrueRBtn = new JRadioButton("Compress", true);
+			compressFalseRBtn = new JRadioButton("No Compress", false);
+			ButtonGroup compressGroup = new ButtonGroup();
+			compressGroup.add(compressTrueRBtn);
+			compressGroup.add(compressFalseRBtn);
 
-			startBtn.setBounds(0, 0, 150, 130);
-			stopBtn.setBounds(150, 0, 150, 130);
-			widthLabel.setBounds(327, 8, 50, 15);
-			widthTextfield.setBounds(300, 30, 90, 35);
-			heightLabel.setBounds(325, 70, 50, 15);
-			heightTextfield.setBounds(300, 90, 90, 35);
-			compressLabel.setBounds(405, -10, 100, 50);
-			compressTrueRBtn.setBounds(390, 30, 80, 30);
-			compressFalseRBtn.setBounds(390, 90, 80, 30);
-
-			ButtonGroup group = new ButtonGroup();
-			group.add(compressTrueRBtn);
-			group.add(compressFalseRBtn);
-
-			widthLabel.setFont(new Font(myFont, Font.PLAIN, 15));
-			heightLabel.setFont(new Font(myFont, Font.PLAIN, 15));
-
-			compressLabel.setFont(new Font(myFont, Font.PLAIN, 10));
-			startBtn.setFont(new Font(myFont, Font.PLAIN, 20));
-			stopBtn.setFont(new Font(myFont, Font.PLAIN, 20));
-			compressTrueRBtn.setFont(new Font(myFont, Font.PLAIN, 20));
-			compressFalseRBtn.setFont(new Font(myFont, Font.PLAIN, 20));
-
-			compressTrueRBtn.setSelected(true);
+			// Set bounds for components
+			startBtn.setBounds(20, 20, 120, 40);
+			stopBtn.setBounds(150, 20, 120, 40);
+			JLabel widthLabel = new JLabel("Width:");
+			widthLabel.setBounds(20, 80, 50, 30);
+			widthTextField.setBounds(70, 80, 70, 30);
+			JLabel heightLabel = new JLabel("Height:");
+			heightLabel.setBounds(150, 80, 50, 30);
+			heightTextField.setBounds(200, 80, 70, 30);
+			compressTrueRBtn.setBounds(280, 20, 120, 40);
+			compressFalseRBtn.setBounds(280, 70, 120, 40);
+			statusLabel = new JLabel("Status: Idle");
+			statusLabel.setBounds(20, 120, 300, 30);
 
 			add(startBtn);
 			add(stopBtn);
 			add(widthLabel);
-			add(widthTextfield);
+			add(widthTextField);
 			add(heightLabel);
-			add(heightTextfield);
-			add(compressLabel);
+			add(heightTextField);
 			add(compressTrueRBtn);
 			add(compressFalseRBtn);
-			stopBtn.setEnabled(false);
-			startBtn.addActionListener(new ActionListener() {
+			add(statusLabel);
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (isRunning)
-						return;
-					try {
-						new_Height = Integer.parseInt(heightTextfield.getText());
-						new_Width = Integer.parseInt(widthTextfield.getText());
-					} catch (Exception e1) {
-						return;
-					}
-					heightTextfield.setEditable(false);
-					widthTextfield.setEditable(false);
-					isRunning = true;
-					startBtn.setEnabled(false);
-					stopBtn.setEnabled(true);
-					if (compressTrueRBtn.isSelected()) {
-						isCompress = true;
-					} else if (compressFalseRBtn.isSelected()) {
-						isCompress = false;
-					}
-					compressTrueRBtn.setEnabled(false);
-					compressFalseRBtn.setEnabled(false);
-
-					imgThread = new Thread(mainPanel);
-					CursorThread cursorThread = new CursorThread();
-					KeyBoardThread keyBoardThread = new KeyBoardThread();
-					imgThread.start();
-					cursorThread.start();
-					keyBoardThread.start();
-
-				}
-			});
-			stopBtn.addActionListener(new ActionListener() {
-
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (!isRunning)
-						return;
-					heightTextfield.setEditable(true);
-					widthTextfield.setEditable(true);
-					isRunning = false;
-					ServerSocketCloseThread closeThread = new ServerSocketCloseThread();
-					closeThread.start();
-					// imgThread.interrupt();
-					stopBtn.setEnabled(false);
-					startBtn.setEnabled(true);
-					compressTrueRBtn.setEnabled(true);
-					compressFalseRBtn.setEnabled(true);
-
-				}
-			});
-			widthTextfield.transferFocus();
+			startBtn.addActionListener(e -> startServer());
+			stopBtn.addActionListener(e -> stopServer());
 		}
+	}
 
+	/**
+	 * Starts the server tasks and waits for client connections.
+	 */
+	private void startServer() {
+		if (isRunning) return;
+		try {
+			newWidth = Integer.parseInt(widthTextField.getText().trim());
+			newHeight = Integer.parseInt(heightTextField.getText().trim());
+		} catch (NumberFormatException ex) {
+			JOptionPane.showMessageDialog(this, "Invalid dimensions", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		isCompress = compressTrueRBtn.isSelected();
+
+		// Disable controls
+		widthTextField.setEditable(false);
+		heightTextField.setEditable(false);
+		compressTrueRBtn.setEnabled(false);
+		compressFalseRBtn.setEnabled(false);
+		startBtn.setEnabled(false);
+		stopBtn.setEnabled(true);
+		statusLabel.setText("Status: Waiting for client connection...");
+		isRunning = true;
+
+		// Submit tasks for image, cursor, and keyboard channels
+		executorService.submit(new ImageTask());
+		executorService.submit(new CursorTask());
+		executorService.submit(new KeyboardTask());
+	}
+
+	/**
+	 * Stops the server tasks and closes sockets.
+	 */
+	private void stopServer() {
+		if (!isRunning) return;
+		isRunning = false;
+		try {
+			if (imageServerSocket != null && !imageServerSocket.isClosed()) {
+				imageServerSocket.close();
+			}
+			if (cursorServerSocket != null && !cursorServerSocket.isClosed()) {
+				cursorServerSocket.close();
+			}
+			if (keyboardServerSocket != null && !keyboardServerSocket.isClosed()) {
+				keyboardServerSocket.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		startBtn.setEnabled(true);
+		stopBtn.setEnabled(false);
+		widthTextField.setEditable(true);
+		heightTextField.setEditable(true);
+		compressTrueRBtn.setEnabled(true);
+		compressFalseRBtn.setEnabled(true);
+		statusLabel.setText("Status: Stopped");
+	}
+
+	/**
+	 * ImageTask accepts the image client connection, sends initialization parameters,
+	 * and then continuously captures, scales, compresses (if enabled), and sends screen images.
+	 */
+	private class ImageTask implements Runnable {
+		@Override
 		public void run() {
-
 			try {
-				robot = new Robot();
-				screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
-				screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-				rect = new Rectangle(0, 0, screenWidth, screenHeight);
-				imageSeverSocket = new ServerSocket(SERVER_PORT);// ImageSERVER
+				imageServerSocket = new ServerSocket(SERVER_PORT);
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Waiting for image client..."));
+				imageSocket = imageServerSocket.accept();
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Image client connected"));
 
-				imageSocket = imageSeverSocket.accept();
-				imageSocket.setTcpNoDelay(true);
-				dataOutputStream = new DataOutputStream(imageSocket.getOutputStream());
-				objectOutputStream = new ObjectOutputStream(imageSocket.getOutputStream());
+				DataOutputStream dataOutputStream = new DataOutputStream(imageSocket.getOutputStream());
+				// Send initial parameters: physical screen dimensions, desired image dimensions, and compress flag.
+				Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+				int screenWidth = screenSize.width;
+				int screenHeight = screenSize.height;
 				dataOutputStream.writeInt(screenWidth);
 				dataOutputStream.writeInt(screenHeight);
-				dataOutputStream.writeInt(new_Width);
-				dataOutputStream.writeInt(new_Height);
+				dataOutputStream.writeInt(newWidth);
+				dataOutputStream.writeInt(newHeight);
 				dataOutputStream.writeBoolean(isCompress);
-				cursor = ImageIO.read(cursorURL);
-			} catch (Exception e) {
+				dataOutputStream.flush();
 
-			}
-			ImgDoubleBufferTh th = new ImgDoubleBufferTh();
-			th.start();					
-			
-			//new ImgDoubleBufferTh().start();
-			
-			// ImageIO.setUseCache(false);// little more spped
+				while (isRunning && !Thread.currentThread().isInterrupted()) {
+					// Capture the entire screen
+					BufferedImage capture = robot.createScreenCapture(screenRect);
+					// Scale image
+					BufferedImage scaled = getScaledImage(capture, newWidth, newHeight, BufferedImage.TYPE_3BYTE_BGR);
+					// Retrieve raw image bytes
+					byte[] imageBytes = ((DataBufferByte) scaled.getRaster().getDataBuffer()).getData();
+					// Optionally compress the image bytes
+					byte[] outputBytes = isCompress ? Snappy.compress(imageBytes) : imageBytes;
 
-			// imgvec.add(getScaledImage(robot.createScreenCapture(rectangle),screenWidth,screenHeight,BufferedImage.TYPE_3BYTE_BGR));
-			// Image cursor = ImageIO.read(new
-			// File("c:\\Test\\cursor.gif"));
+					// Write length and data
+					dataOutputStream.writeInt(outputBytes.length);
+					dataOutputStream.write(outputBytes);
+					dataOutputStream.flush();
 
-			// long starttime,estimatedTime;
-			int index = 0;
-			Runtime runtime = Runtime.getRuntime();
-			while (isRunning) {
+					// Sleep briefly (adjust to control frame rate)
+					Thread.sleep(30);
+				}
+			} catch (IOException | InterruptedException ex) {
+				if (isRunning) {
+					ex.printStackTrace();
+				}
+			} finally {
 				try {
-					
-					// screenImage =
-					// JNAScreenShot.getScreenshot(rectangle);//robot.createScreenCapture(rectangle);
-					// if (img[index] != null) {
-					// screenImage = img[index];//
-					// robot.createScreenCapture(rectangle);
-					
-					//screenImage =imgvec.get(0); //robot.createScreenCapture(rect);//					
-					byte[] imageByte = imgvec.get(0);
-					if(imgvec.size() == 3){
-						synchronized (th) {
-							th.notify();
-						}						
+					if (imageSocket != null && !imageSocket.isClosed()) {
+						imageSocket.close();
 					}
-					
-					
-
-					/*
-					 * int mouseX = MouseInfo.getPointerInfo().getLocation().x;
-					 * int mouseY = MouseInfo.getPointerInfo().getLocation().y;
-					 * 
-					 * screenImage.getGraphics().drawImage(cursor, mouseX,
-					 * mouseY, 30, 30, null);
-					 */
-
-					
-					
-
-					if (isCompress) {
-
-						//byte[] compressImageByte = compress(imageByte);// 6MB->480KB????						
-						// System.out.println("compress : " +
-						// (double)compressImageByte.length/1024 + "kb");
-						dataOutputStream.writeInt(imageByte.length);
-						dataOutputStream.write(imageByte);
-
-						// System.out.println(imageByte.length);
-						dataOutputStream.flush();
-					} else {
-						dataOutputStream.writeInt(imageByte.length);
-						dataOutputStream.write(imageByte);
-						// System.out.println(imageByte.length);
-
-						dataOutputStream.flush();
-					}
-					//}
-				} catch (Exception e) {
-
-				}
-				if (runtime.totalMemory() / 1024 / 1024 > 500)
-					System.gc();
-				if (imgvec.size() > 1) {
-					/*		new Thread(){
-								public void run(){						*/	
-									//System.out.println(imgvec.size());
-									imgvec.remove(0);
-									index++;								
-									if(index == 30){
-										index=0;
-										System.gc();
-									}
-						/*		}						
-							}.start();*/
-						}
-								
-
-				// Thread.sleep(1000);
-			}
-
-		}
-
-	}
-
-	class ImgDoubleBufferTh extends Thread {
-		BufferedImage bufferimage;
-		Robot robot = null;
-		
-		synchronized public void run() {			
-			try {
-				robot = new Robot();
-			} catch (AWTException e) {
-			}			
-			while (true) {
-
-				bufferimage = robot.createScreenCapture(rect);
-				bufferimage = getScaledImage(bufferimage, new_Width, new_Height, BufferedImage.TYPE_3BYTE_BGR);
-				byte[] imageByte = ((DataBufferByte) bufferimage.getRaster().getDataBuffer()).getData();
-				try {
-					imgvec.addElement(compress(imageByte));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				//System.out.println(imgvec.size());
-				if(imgvec.size()>5)
-					try {
-						//iout.println("wait");
-						wait();
-					} catch (InterruptedException e) {
-						
-					}				
-			}
-
-		}
-	}
-
-	public static byte[] compress(byte[] data) throws IOException {
-		byte[] output = Snappy.compress(data);
-
-		return output;
-	}
-
-	public BufferedImage getScaledImage(BufferedImage myImage, int width, int height, int type) {
-		BufferedImage background = new BufferedImage(width, height, type);
-		Graphics2D g = background.createGraphics();
-		g.setColor(Color.WHITE);
-		g.drawImage(myImage, 0, 0, width, height, null);
-		g.dispose();
-		return background;
-	}
-
-	class ServerSocketCloseThread extends Thread {
-		public void run() {
-			if (!imageSeverSocket.isClosed() || !cursorServerSocket.isClosed() || keyboardServerSocket.isClosed()) {
-				try {
-					imageSeverSocket.close();
-					cursorServerSocket.close();
-					keyboardServerSocket.close();
-				} catch (IOException e) {
-					DebugMessage.printDebugMessage(e);
+				} catch (IOException ex) {
+					ex.printStackTrace();
 				}
 			}
 		}
 	}
 
-	class KeyBoardThread extends Thread {
+	/**
+	 * CursorTask accepts the cursor client connection, listens for incoming mouse events,
+	 * and uses Robot to simulate those events on the server.
+	 */
+	private class CursorTask implements Runnable {
+		@Override
 		public void run() {
 			try {
-				keyboardServerSocket = new ServerSocket(SERVER_KEBOARD_PORT);
-				keyboardSocket = keyboardServerSocket.accept();
-				DataInputStream dataInputStream = new DataInputStream(keyboardSocket.getInputStream());
-				while (true) {
-					int keyboardState = dataInputStream.readInt();
-					if (keyboardState == KEY_PRESSED) {// KEYBOARD PRESSED
-						int keyCode = dataInputStream.readInt();
-						// System.out.println(keyCode + "????");
-						u32.keybd_event((byte) keyCode, (byte) 0, 0, 0);// ????ffDDDddSS
-						// robot.keyPress(keyCode);
-					} else if (keyboardState == KEY_RELEASED) {
-						int keyCode = dataInputStream.readInt();
-						// System.out.println(keyCode + "????");
-						u32.keybd_event((byte) keyCode, (byte) 00, (byte) 0x0002, 0);// ??
-						// robot.keyRelease(keyCode);
-					}
-					yield();
-				}
-			} catch (Exception e) {
-
-			}
-		}
-	}
-
-	class CursorThread extends Thread {
-		public void run() {
-			try {
-				cursorServerSocket = new ServerSocket(SERVER_CURSOR_PORT);// cursorSERVER
+				cursorServerSocket = new ServerSocket(SERVER_CURSOR_PORT);
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Waiting for cursor client..."));
 				cursorSocket = cursorServerSocket.accept();
-				DataInputStream dataInputStream = new DataInputStream(cursorSocket.getInputStream());
-				int mouseX = 0;
-				int mouseY = 0;
-				while (isRunning) {
-					int mouseState = dataInputStream.readInt();// mouse,Keyboard
-																// state
-					if (mouseState == MOUSE_MOVE) {// move
-						mouseX = dataInputStream.readInt();
-						mouseY = dataInputStream.readInt();
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Cursor client connected"));
 
-						robot.mouseMove(mouseX, mouseY);
-					} else if (mouseState == MOUSE_PRESSD) { // pressed
-						int mouseButton = dataInputStream.readInt();
-						robot.mouseMove(mouseX, mouseY);
-						if (mouseButton == 1) {
-							robot.mousePress(MouseEvent.BUTTON1_MASK);
-						} else if (mouseButton == 2) {
-							robot.mousePress(MouseEvent.BUTTON2_MASK);
-						} else if (mouseButton == 3) {
-							robot.mousePress(MouseEvent.BUTTON3_MASK);
-						}
-					} else if (mouseState == MOUSE_RELEASED) {// released
-						int mouseButton = dataInputStream.readInt();
-						robot.mouseMove(mouseX, mouseY);
-						if (mouseButton == 1) {
-							robot.mouseRelease(MouseEvent.BUTTON1_MASK);
-						} else if (mouseButton == 2) {
-							robot.mouseRelease(MouseEvent.BUTTON2_MASK);
-						} else if (mouseButton == 3) {
-							robot.mouseRelease(MouseEvent.BUTTON3_MASK);
-						}
-					} else if (mouseState == MOUSE_DOWN_WHEEL) {// MOUSE DOWN
-																// WHEEL
-						robot.mouseWheel(-3);
-					} else if (mouseState == MOUSE_UP_WHEEL) {// MOUSE UP WHEEL
-						robot.mouseWheel(3);
+				DataInputStream dis = new DataInputStream(cursorSocket.getInputStream());
+				int mouseX = 0, mouseY = 0;
+				while (isRunning && !Thread.currentThread().isInterrupted()) {
+					int mouseEvent = dis.readInt();
+					switch (mouseEvent) {
+						case MOUSE_MOVE:
+							mouseX = dis.readInt();
+							mouseY = dis.readInt();
+							robot.mouseMove(mouseX, mouseY);
+							break;
+						case MOUSE_PRESSED:
+							int button = dis.readInt();
+							robot.mousePress(getButtonMask(button));
+							break;
+						case MOUSE_RELEASED:
+							button = dis.readInt();
+							robot.mouseRelease(getButtonMask(button));
+							break;
+						case MOUSE_DOWN_WHEEL:
+							robot.mouseWheel(-3);
+							break;
+						case MOUSE_UP_WHEEL:
+							robot.mouseWheel(3);
+							break;
+						default:
+							break;
 					}
-					yield();
 				}
-
-			} catch (Exception e) {
-
+			} catch (IOException ex) {
+				if (isRunning) {
+					ex.printStackTrace();
+				}
+			} finally {
+				try {
+					if (cursorSocket != null && !cursorSocket.isClosed()) {
+						cursorSocket.close();
+					}
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 			}
+		}
 
+		/**
+		 * Converts a mouse button number to the appropriate mask for Robot.
+		 */
+		private int getButtonMask(int button) {
+			switch (button) {
+				case 1:
+					return MouseEvent.BUTTON1_DOWN_MASK;
+				case 2:
+					return MouseEvent.BUTTON2_DOWN_MASK;
+				case 3:
+					return MouseEvent.BUTTON3_DOWN_MASK;
+				default:
+					return 0;
+			}
 		}
 	}
 
+	/**
+	 * KeyboardTask accepts the keyboard client connection, listens for incoming keyboard events,
+	 * and simulates key presses/releases using Robot.
+	 */
+	private class KeyboardTask implements Runnable {
+		@Override
+		public void run() {
+			try {
+				keyboardServerSocket = new ServerSocket(SERVER_KEYBOARD_PORT);
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Waiting for keyboard client..."));
+				keyboardSocket = keyboardServerSocket.accept();
+				SwingUtilities.invokeLater(() ->
+						statusLabel.setText("Status: Keyboard client connected"));
+
+				DataInputStream dis = new DataInputStream(keyboardSocket.getInputStream());
+				while (isRunning && !Thread.currentThread().isInterrupted()) {
+					int keyEvent = dis.readInt();
+					int keyCode = dis.readInt();
+					switch (keyEvent) {
+						case KEY_PRESSED:
+							robot.keyPress(keyCode);
+							break;
+						case KEY_RELEASED:
+							robot.keyRelease(keyCode);
+							break;
+						default:
+							break;
+					}
+				}
+			} catch (IOException ex) {
+				if (isRunning) {
+					ex.printStackTrace();
+				}
+			} finally {
+				try {
+					if (keyboardSocket != null && !keyboardSocket.isClosed()) {
+						keyboardSocket.close();
+					}
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Utility method for scaling a BufferedImage.
+	 *
+	 * @param src       the source image
+	 * @param width     target width
+	 * @param height    target height
+	 * @param imageType the image type (e.g. BufferedImage.TYPE_3BYTE_BGR)
+	 * @return the scaled image
+	 */
+	private BufferedImage getScaledImage(BufferedImage src, int width, int height, int imageType) {
+		BufferedImage scaled = new BufferedImage(width, height, imageType);
+		Graphics2D g2d = scaled.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2d.drawImage(src, 0, 0, width, height, null);
+		g2d.dispose();
+		return scaled;
+	}
+
+	/**
+	 * Optional: A JNA interface for simulating keyboard events on Windows.
+	 * (Currently, the Robot is used. Uncomment and modify if needed.)
+	 */
+	public interface User32jna extends Library {
+		User32jna INSTANCE = (User32jna) Native.load("user32.dll", User32jna.class);
+		void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+	}
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(NetworkScreenServer::new);
+	}
 }
