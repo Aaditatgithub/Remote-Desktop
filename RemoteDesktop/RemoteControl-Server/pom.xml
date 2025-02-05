@@ -8,6 +8,7 @@
     <artifactId>RemoteControl-Client</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>${project.artifactId}-${project.version}</name>
+    <packaging>jar</packaging>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -18,6 +19,11 @@
             <groupId>org.xerial.snappy</groupId>
             <artifactId>snappy-java</artifactId>
             <version>1.1.10.1</version> <!-- or the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.13.0</version> <!-- or the latest version -->
         </dependency>
     </dependencies>
     <build>
@@ -32,5 +38,4 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>jar</packaging>
 </project>

@@ -6,17 +6,24 @@
   <component name="ChangeListManager">
     <list default="true" id="05276ab8-f9e5-4777-bc34-b2a48f9549c8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/RemoteControl-Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/NetworkScreenClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/NetworkScreenClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/ScreenPanel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/exit.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/minimize.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/JNAScreenShot.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/NetworkScreenServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/NetworkScreenServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/DebugMessage.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/DebugMessage.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ControlPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ControlPanel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$CursorTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$CursorTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ImageTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ImageTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$KeyboardTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$KeyboardTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,20 +51,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;21&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Work/Coding/COMPUTER-NETWORKS/Networking-101/RemoteDesktop&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Work/Coding/COMPUTER-NETWORKS/Networking-101/RemoteDesktop/RemoteAssistance-JAVA/Client-ExecutorsThreads/src/main/java/org/example/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "com.codeium.enabled": "true",
+    "git-widget-placeholder": "main",
+    "jdk.selected.JAVA_MODULE": "21",
+    "last_opened_file_path": "C:/Work/Coding/COMPUTER-NETWORKS/Networking-101/RemoteDesktop",
+    "onboarding.tips.debug.path": "C:/Work/Coding/COMPUTER-NETWORKS/Networking-101/RemoteDesktop/RemoteAssistance-JAVA/Client-ExecutorsThreads/src/main/java/org/example/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="" />
@@ -69,22 +76,8 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Main (1)">
-    <configuration name="Main (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="RemoteControl-Server" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Main (2)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="Main" />
-      <module name="Client-ExecutorsThreads" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="RemoteControl-Client" />
       <method v="2">
@@ -106,9 +99,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Main (1)" />
         <item itemvalue="Application.Main" />
-        <item itemvalue="Application.Main (2)" />
       </list>
     </recent_temporary>
   </component>
