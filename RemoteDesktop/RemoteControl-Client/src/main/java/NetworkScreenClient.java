@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -10,11 +9,13 @@ import org.xerial.snappy.Snappy;
 
 public class NetworkScreenClient extends JFrame {
 	// UI and connection constants
-	private static final int FRAME_WIDTH = 500;
-	private static final int FRAME_HEIGHT = 110;
-	private static final int SERVER_PORT = 9999;
-	private static final int SERVER_CURSOR_PORT = SERVER_PORT - 1;
-	private static final int SERVER_KEYBOARD_PORT = SERVER_PORT - 2;
+	private static final int FRAME_WIDTH = 1080;
+	private static final int FRAME_HEIGHT = 720;
+
+	// Make sure these ports match the ones on your server.
+	private static final int SERVER_PORT = 9090;
+	private static final int SERVER_CURSOR_PORT = SERVER_PORT - 1;    // 8079
+	private static final int SERVER_KEYBOARD_PORT = SERVER_PORT - 2;    // 8078
 
 	// Main panels for connection and streaming
 	private ControlPanel controlPanel;
@@ -131,10 +132,10 @@ public class NetworkScreenClient extends JFrame {
 					InetSocketAddress cursorAddress = new InetSocketAddress(ip, SERVER_CURSOR_PORT);
 					InetSocketAddress keyboardAddress = new InetSocketAddress(ip, SERVER_KEYBOARD_PORT);
 
-					// Connect with a timeout
-					mainSocket.connect(mainAddress, 1000);
-					cursorSocket.connect(cursorAddress, 1000);
-					keyboardSocket.connect(keyboardAddress, 1000);
+					// Connect with a timeout (here 5000 ms)
+					mainSocket.connect(mainAddress, 5000);
+					cursorSocket.connect(cursorAddress, 5000);
+					keyboardSocket.connect(keyboardAddress, 5000);
 
 					// Indicate success and swap to screen panel
 					addressField.setText("Connect Success!");
@@ -161,7 +162,7 @@ public class NetworkScreenClient extends JFrame {
 		private Socket cursorSocket;
 		private Socket keyboardSocket;
 		private DataInputStream dataInputStream;
-		private ObjectInputStream objectInputStream;
+		// Removed unused ObjectInputStream
 		private DataOutputStream mouseOutputStream;
 		private DataOutputStream keyboardOutputStream;
 
@@ -194,7 +195,6 @@ public class NetworkScreenClient extends JFrame {
 			try {
 				mainSocket.setTcpNoDelay(true);
 				dataInputStream = new DataInputStream(mainSocket.getInputStream());
-				objectInputStream = new ObjectInputStream(mainSocket.getInputStream());
 				mouseOutputStream = new DataOutputStream(cursorSocket.getOutputStream());
 				keyboardOutputStream = new DataOutputStream(keyboardSocket.getOutputStream());
 			} catch (IOException ex) {
@@ -210,7 +210,6 @@ public class NetworkScreenClient extends JFrame {
 			// Setup mouse event forwarding
 			setupMouseListeners();
 
-			// (Keyboard events can be added similarly.)
 			requestFocusInWindow();
 		}
 
@@ -224,6 +223,11 @@ public class NetworkScreenClient extends JFrame {
 				imageWidth = dataInputStream.readInt();
 				imageHeight = dataInputStream.readInt();
 				isCompress = dataInputStream.readBoolean();
+				System.out.println("Init params: screenWidth=" + screenWidth +
+						", screenHeight=" + screenHeight +
+						", imageWidth=" + imageWidth +
+						", imageHeight=" + imageHeight +
+						", isCompress=" + isCompress);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -236,12 +240,20 @@ public class NetworkScreenClient extends JFrame {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					int length = dataInputStream.readInt();
+					System.out.println("Frame length: " + length);
+					if (length <= 0) {
+						System.out.println("Invalid frame length, skipping.");
+						continue;
+					}
 					byte[] imageBytes = new byte[length];
 					dataInputStream.readFully(imageBytes, 0, length);
 
 					byte[] processedBytes = isCompress ? Snappy.uncompress(imageBytes) : imageBytes;
+					if (processedBytes.length != imageWidth * imageHeight * 3) {
+						System.out.println("Warning: Processed bytes size (" + processedBytes.length +
+								") does not match expected (" + (imageWidth * imageHeight * 3) + ")");
+					}
 					BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_3BYTE_BGR);
-					// Wrap the raw byte array into the image's data buffer
 					image.getRaster().setDataElements(0, 0, imageWidth, imageHeight, processedBytes);
 					latestImage = image;
 					fpsCount++;
@@ -250,7 +262,6 @@ public class NetworkScreenClient extends JFrame {
 					ex.printStackTrace();
 					break;
 				} catch (Exception ex) {
-					// For other exceptions (including Snappy exceptions), log and continue
 					ex.printStackTrace();
 				}
 			}

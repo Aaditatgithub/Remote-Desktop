@@ -19,6 +19,11 @@
             <artifactId>snappy-java</artifactId>
             <version>1.1.10.1</version> <!-- or the latest version -->
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.13.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
