@@ -6,28 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="05276ab8-f9e5-4777-bc34-b2a48f9549c8" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/NetworkScreenClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/src/main/java/NetworkScreenClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/Main.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ControlPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient$ScreenPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Client/target/classes/NetworkScreenClient.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/NetworkScreenServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/src/main/java/NetworkScreenServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$1.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ControlPanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ControlPanel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$CursorTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$CursorTask.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ImageTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$ImageTask.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$KeyboardTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$KeyboardTask.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$User32jna.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer$User32jna.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/RemoteControl-Server/target/classes/NetworkScreenServer.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
