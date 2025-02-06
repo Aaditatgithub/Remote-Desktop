@@ -12,6 +12,10 @@ This project is perfect for applications like remote support, screen sharing, or
 
 ![Remote-Desktop-Architecture](https://github.com/user-attachments/assets/5fbd3fcf-fd38-48a2-90f0-089f30366959)
 
+> **Note**  
+> _*The architecture diagram is of the code prior to latest changes of ExecutorService*_
+
+
 The architecture consists of two major components:
 
 ### 1. **Client**
